@@ -8,8 +8,8 @@ class Analisador():
         try:
             self.input_file = open(input_file, 'rb')
             self.lookahead = 0
-            self.n_line = 1
-            self.n_column = 1
+            self.n_linha = 1
+            self.n_coluna = 0
             self.ts = TS()
         except IOError:
             print('Erro de abertura do arquivo. Encerrando.')
@@ -45,73 +45,47 @@ class Analisador():
 
             if (estado == 1):
                 if (c == ''):
-                    return Token(Tag.EOF, "EOF", self.n_line, self.n_column)
-                elif (c == ' ' or c == '\t' or c == '\n' or c == '\r'):
+                    return Token(Tag.EOF, "EOF", self.n_linha, self.n_coluna)
+                elif (c == ' ' or c == " "):
+                    self.n_coluna = self.n_coluna + 1
                     estado = 1
-                elif (c == '='):
-                    estado = 2
-                elif (c == '!'):
-                    estado = 4
-                elif (c == '<'):
-                    estado = 6
-                elif (c == '>'):
-                    estado = 9
-                elif (c.isdigit()):
-                    lexema += c
-                    estado = 12
-                elif (c.isalpha()):
-                    lexema += c
-                    estado = 14
+                elif (c == '\t'):
+                    self.n_coluna = self.n_coluna + 3
+                    estado = 1
+                elif (c == '\n'):
+                    self.n_coluna = 0
+                    self.n_linha = self.n_linha + 1
+                    estado = 1
                 elif (c == '/'):
-                    estado = 16
+                    estado = 2
                 else:
                     self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
-                                            str(self.n_line) + " e coluna " + str(self.n_column))
+                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
                     return None
             elif (estado == 2):
-                if (c == '='):
-                    return Token(Tag.OP_IGUAL, "==", self.n_line, self.n_column)
+                if (c == '*'):
+                    estado = 3
+                elif (c == '/'):
+                    estado = 5
+                else:
+                    estado = 1
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_DIV, '/', self.n_linha, self.n_coluna)
 
-                self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
-                                        str(self.n_line) + " e coluna " + str(self.n_column))
-                return None
+            elif (estado == 3):
+                if (c == '*'):
+                    estado = 4
+                if (c == '\n'):
+                    self.n_linha = self.n_linha + 1
+
             elif (estado == 4):
-                if (c == '='):
-                    return Token(Tag.OP_DIFERENTE, "!=", self.n_line, self.n_column)
-
-                self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
-                                        str(self.n_line) + " e coluna " + str(self.n_column))
-                return None
-            elif (estado == 6):
-                if (c == '='):
-                    return Token(Tag.OP_MENOR_IGUAL, "<=", self.n_line, self.n_column)
-
-                self.retornaPonteiro()
-                return Token(Tag.OP_MENOR, "<", self.n_line, self.n_column)
-            elif (estado == 9):
-                if (c == '='):
-                    return Token(Tag.OP_MAIOR_IGUAL, ">=", self.n_line, self.n_column)
-
-                self.retornaPonteiro()
-                return Token(Tag.OP_MAIOR, ">", self.n_line, self.n_column)
-            elif (estado == 12):
-                if (c.isdigit()):
-                    lexema += c
+                if (c == '/'):
+                    estado = 1
                 else:
-                    self.retornaPonteiro()
-                    return Token(Tag.NUM, lexema, self.n_line, self.n_column)
-            elif (estado == 14):
-                if (c.isalnum()):
-                    lexema += c
-                else:
-                    self.retornaPonteiro()
-                    token = self.ts.getToken(lexema)
-                    if (token is None):
-                        token = Token(Tag.ID, lexema, self.n_line, self.n_column)
-                        self.ts.addToken(lexema, token)
+                    estado = 3
 
-                    return token
-            # [TAREFA] Quem quiser, pode completar a logica para o cometario conforme o AFD.
-
-            # fim if's de estados
-        # fim while
+            elif (estado == 5):
+                if (c == '\n'):
+                    self.n_coluna = 0
+                    self.n_linha = self.n_linha + 1
+                    estado = 1
