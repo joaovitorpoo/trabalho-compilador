@@ -58,6 +58,8 @@ class Analisador():
                     estado = 1
                 elif (c == '/'):
                     estado = 2
+                elif (c == '>'):
+                    estado = 6
                 else:
                     self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
                                             str(self.n_linha) + " e coluna " + str(self.n_coluna))
@@ -89,3 +91,10 @@ class Analisador():
                     self.n_coluna = 0
                     self.n_linha = self.n_linha + 1
                     estado = 1
+            elif (estado == 6):
+                if (c == '='):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_GE, '>=', self.n_linha, self.n_coluna)
+                self.retornaPonteiro()
+                self.n_coluna = self.n_coluna + 1
+                return Token(Tag.OP_GT, '>', self.n_linha, self.n_coluna)
