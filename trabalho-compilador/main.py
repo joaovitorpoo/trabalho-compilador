@@ -12,7 +12,7 @@ if __name__ == "__main__":
     while (token is not None and token.getNome() != Tag.EOF):
         print(token.toString(), "Linha: " + str(token.getLinha()) + " Coluna: " + str(token.getColuna()))
         token = analisador.proxToken()
-    print(token.toString(), "Linha: " + str(token.getLinha()) + " Coluna: " + str(token.getColuna()))
+
 
 
     print("\n=>Tabela de simbolos:")

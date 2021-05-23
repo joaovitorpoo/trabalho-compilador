@@ -36,7 +36,8 @@ class Analisador():
         # Implementa um AFD.
 
         estado = 1
-        lexema = ""
+        self.lexema = ""
+        self.n_l = 0
         c = '\u0000'
 
         while (True):
@@ -46,7 +47,7 @@ class Analisador():
             if (estado == 1):
                 if (c == ''):
                     return Token(Tag.EOF, "EOF", self.n_linha, self.n_coluna)
-                elif (c == ' ' or c == " "):
+                elif c == ' ' or c == '\r':
                     self.n_coluna = self.n_coluna + 1
                     estado = 1
                 elif (c == '\t'):
@@ -66,6 +67,11 @@ class Analisador():
                     estado = 8
                 elif (c == '!'):
                     estado = 9
+                elif c.isalpha():
+                    self.lexema += c
+                    self.n_coluna = self.n_coluna + 1
+                    self.n_l = 1
+                    estado = 10
                 elif (c == '+'):
                     self.n_coluna = self.n_coluna + 1
                     return Token(Tag.OP_AD, '+', self.n_linha, self.n_coluna)
@@ -75,6 +81,24 @@ class Analisador():
                 elif (c == '-'):
                     self.n_coluna = self.n_coluna + 1
                     return Token(Tag.OP_MIN, '-', self.n_linha, self.n_coluna)
+                elif (c == '{'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.SMB_OBC, '{', self.n_linha, self.n_coluna)
+                elif (c == '}'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.SMB_CBC, '}', self.n_linha, self.n_coluna)
+                elif (c == '('):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.SMB_OPA, '(', self.n_linha, self.n_coluna)
+                elif (c == ')'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.SMB_CPA, ')', self.n_linha, self.n_coluna)
+                elif (c == ','):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.SMB_COM, ',', self.n_linha, self.n_coluna)
+                elif (c == ';'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.SMB_SEM, ';', self.n_linha, self.n_coluna)
                 else:
                     self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
                                             str(self.n_linha) + " e coluna " + str(self.n_coluna))
@@ -87,7 +111,6 @@ class Analisador():
                 else:
                     estado = 1
                     self.n_coluna = self.n_coluna + 1
-                    self.retornaPonteiro()
                     return Token(Tag.OP_DIV, '/', self.n_linha, self.n_coluna)
 
             elif (estado == 3):
@@ -135,3 +158,24 @@ class Analisador():
                 self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
                                         str(self.n_linha) + " e coluna " + str(self.n_coluna))
                 return None
+            elif (estado == 10):
+                if c.isalnum():
+                    self.lexema += c
+                    self.n_l = self.n_l + 1
+                else:
+                    estado = 1
+
+                    token = self.ts.getToken(self.lexema)
+
+                    if (token is None):
+                        token = Token(Tag.ID, self.lexema, self.n_linha, self.n_coluna)
+                        self.ts.addToken(self.lexema, token)
+
+                    token.setLinha(self.n_linha)
+                    token.setColuna(self.n_coluna)
+
+                    self.n_coluna = self.n_coluna + self.n_l
+
+                    self.lexema = ''
+                    self.retornaPonteiro()
+                    return token
