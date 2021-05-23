@@ -60,6 +60,21 @@ class Analisador():
                     estado = 2
                 elif (c == '>'):
                     estado = 6
+                elif (c == '<'):
+                    estado = 7
+                elif (c == '='):
+                    estado = 8
+                elif (c == '!'):
+                    estado = 9
+                elif (c == '+'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_AD, '+', self.n_linha, self.n_coluna)
+                elif (c == '*'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_MUL, '*', self.n_linha, self.n_coluna)
+                elif (c == '-'):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_MIN, '-', self.n_linha, self.n_coluna)
                 else:
                     self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
                                             str(self.n_linha) + " e coluna " + str(self.n_coluna))
@@ -72,6 +87,7 @@ class Analisador():
                 else:
                     estado = 1
                     self.n_coluna = self.n_coluna + 1
+                    self.retornaPonteiro()
                     return Token(Tag.OP_DIV, '/', self.n_linha, self.n_coluna)
 
             elif (estado == 3):
@@ -98,3 +114,24 @@ class Analisador():
                 self.retornaPonteiro()
                 self.n_coluna = self.n_coluna + 1
                 return Token(Tag.OP_GT, '>', self.n_linha, self.n_coluna)
+            elif (estado == 7):
+                if (c == '='):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_LE, '<=', self.n_linha, self.n_coluna)
+                self.retornaPonteiro()
+                self.n_coluna = self.n_coluna + 1
+                return Token(Tag.OP_LT, '<', self.n_linha, self.n_coluna)
+            elif (estado == 8):
+                if (c == '='):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_EQ, '==', self.n_linha, self.n_coluna)
+                self.retornaPonteiro()
+                self.n_coluna = self.n_coluna + 1
+                return Token(Tag.OP_ATRIB, '=', self.n_linha, self.n_coluna)
+            elif (estado == 9):
+                if (c == '='):
+                    self.n_coluna = self.n_coluna + 1
+                    return Token(Tag.OP_EQ, '!=', self.n_linha, self.n_coluna)
+                self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
+                                        str(self.n_linha) + " e coluna " + str(self.n_coluna))
+                return None
