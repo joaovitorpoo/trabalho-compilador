@@ -70,8 +70,19 @@ class Analisador():
                 elif c.isalpha():
                     self.lexema += c
                     self.n_coluna = self.n_coluna + 1
-                    self.n_l = 1
+                    self.n_l = 0
                     estado = 10
+                elif c.isdigit():
+                    self.n_l = 0
+                    self.n_coluna = self.n_coluna + 1
+                    self.lexema = c
+                    estado = 11
+                elif (c == '"'):
+                    self.n_coluna = self.n_coluna + 1
+                    self.n_l = 0
+                    self.lexema = c
+                    estado = 13
+
                 elif (c == '+'):
                     self.n_coluna = self.n_coluna + 1
                     return Token(Tag.OP_AD, '+', self.n_linha, self.n_coluna)
@@ -175,7 +186,91 @@ class Analisador():
                     token.setColuna(self.n_coluna)
 
                     self.n_coluna = self.n_coluna + self.n_l
+                    self.n_l = 0
 
                     self.lexema = ''
                     self.retornaPonteiro()
                     return token
+            elif (estado == 11):
+                if (c.isdigit()):
+                    self.lexema += c
+                    self.n_l += 1
+                elif (c == '.'):
+                    self.lexema += c
+                    estado = 12
+                else:
+                    estado = 1
+                    token = Token(Tag.NUM_CONST, self.lexema, self.n_linha, self.n_coluna)
+                    self.lexema = ""
+                    self.n_l = 0
+                    self.n_coluna += self.n_l
+                    return token
+
+            elif (estado == 12):
+                if (c.isdigit()):
+                    self.lexema += c
+                    self.n_l += 1
+                else:
+                    estado = 1
+                    token = Token(Tag.NUM_CONST, self.lexema, self.n_linha, self.n_coluna)
+                    self.lexema = ""
+                    self.n_coluna += self.n_l
+                    self.n_l = 0
+                    return token
+
+            elif (estado == 13):
+
+                if (c == '"'):
+                    self.lexema += c
+                    self.n_l += 1
+
+                    token = Token(Tag.CHAR_CONST, self.lexema, self.n_linha, self.n_coluna)
+
+                    self.lexema = ""
+                    self.n_coluna += self.n_l
+                    self.n_l = 0
+                    return token
+
+                elif (c == ''):
+                    self.sinalizaErroLexico("Char não-fechada antes do fim de arquivo [" + c + "] na linha " +
+                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
+                    self.retornaPonteiro()
+                    self.closeFile()
+                elif (c == '\n'):
+                    self.sinalizaErroLexico("Char não-fechada antes do fim da linha [" + c + "] na linha " +
+                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
+                    self.retornaPonteiro()
+                    self.closeFile()
+                elif (self.n_l == 1):
+                    self.lexema += c
+                    self.n_l += 1
+                    estado = 14
+                else:
+                    self.n_l += 1
+                    self.lexema += c
+
+            elif (estado == 14):
+                if (c == '"'):
+                    self.lexema += c
+                    self.n_l += 1
+
+                    token = Token(Tag.LIT, self.lexema, self.n_linha, self.n_coluna)
+
+                    self.lexema = ""
+                    self.n_l = 0
+                    self.n_coluna += self.n_l
+                    return token
+
+                elif (c == ''):
+                    self.sinalizaErroLexico("Literal não-fechada antes do fim de arquivo [" + c + "] na linha " +
+                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
+                    self.retornaPonteiro()
+                    self.closeFile()
+                elif (c == '\n'):
+                    self.sinalizaErroLexico("Literal não-fechada antes do fim da linha [" + c + "] na linha " +
+                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
+                    self.retornaPonteiro()
+                    self.closeFile()
+                else:
+                    self.n_l += 1
+                    self.lexema += c

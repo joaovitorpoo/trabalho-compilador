@@ -3,8 +3,9 @@
 + *- // aaaaaa
 > /* ssxsxsxsxs
 sxsxsxs
-*/
+*/ 10.25 "a"
 >= ;<=
 < - } if
 * ()); aaa
 aaa
+"asaasasasasasas"
