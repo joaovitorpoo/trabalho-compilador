@@ -43,9 +43,6 @@ class Tag(Enum):
     # Identificador
     ID = 29
 
-    # Literal
-    LIT = 30
-
     # Constantes
-    NUM_CONST = 31
-    CHAR_CONST = 32
+    NUM_CONST = 30
+    CHAR_CONST = 31

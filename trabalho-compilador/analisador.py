@@ -165,7 +165,7 @@ class Analisador():
             elif (estado == 9):
                 if (c == '='):
                     self.n_coluna = self.n_coluna + 1
-                    return Token(Tag.OP_EQ, '!=', self.n_linha, self.n_coluna)
+                    return Token(Tag.OP_NE, '!=', self.n_linha, self.n_coluna)
                 self.sinalizaErroLexico("Caractere invalido [" + c + "] na linha " +
                                         str(self.n_linha) + " e coluna " + str(self.n_coluna))
                 return None
@@ -232,45 +232,16 @@ class Analisador():
                     return token
 
                 elif (c == ''):
-                    self.sinalizaErroLexico("Char não-fechada antes do fim de arquivo [" + c + "] na linha " +
+                    self.sinalizaErroLexico("Char não-fechada antes do fim de arquivo na linha " +
                                             str(self.n_linha) + " e coluna " + str(self.n_coluna))
                     self.retornaPonteiro()
-                    self.closeFile()
+                    return None
                 elif (c == '\n'):
-                    self.sinalizaErroLexico("Char não-fechada antes do fim da linha [" + c + "] na linha " +
+                    self.sinalizaErroLexico("Char não-fechada antes do fim da linha " +
                                             str(self.n_linha) + " e coluna " + str(self.n_coluna))
                     self.retornaPonteiro()
-                    self.closeFile()
-                elif (self.n_l == 1):
-                    self.lexema += c
-                    self.n_l += 1
-                    estado = 14
+                    return None
                 else:
                     self.n_l += 1
                     self.lexema += c
 
-            elif (estado == 14):
-                if (c == '"'):
-                    self.lexema += c
-                    self.n_l += 1
-
-                    token = Token(Tag.LIT, self.lexema, self.n_linha, self.n_coluna)
-
-                    self.lexema = ""
-                    self.n_l = 0
-                    self.n_coluna += self.n_l
-                    return token
-
-                elif (c == ''):
-                    self.sinalizaErroLexico("Literal não-fechada antes do fim de arquivo [" + c + "] na linha " +
-                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
-                    self.retornaPonteiro()
-                    self.closeFile()
-                elif (c == '\n'):
-                    self.sinalizaErroLexico("Literal não-fechada antes do fim da linha [" + c + "] na linha " +
-                                            str(self.n_linha) + " e coluna " + str(self.n_coluna))
-                    self.retornaPonteiro()
-                    self.closeFile()
-                else:
-                    self.n_l += 1
-                    self.lexema += c

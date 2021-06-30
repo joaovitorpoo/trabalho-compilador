@@ -6,8 +6,10 @@ sxsxsxs
 */ 10.25 "a"
 >= ;<=
 < - } if
+!= ==
 
 
 * ()); aaa
 aaa
-"asaasasasasasas"
+8.7
+"abbbb"
