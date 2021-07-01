@@ -1,1 +1,8 @@
 program main
+
+num b;
+char b;
+
+{
+
+}
